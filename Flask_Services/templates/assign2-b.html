@@ -1,0 +1,113 @@
+<!-- ************************************************************************** -->
+<!-- TCSS 573: Internet of Things (IoT) -->
+<!-- Winter 2022 | Assignment 2 | Part B | HTML file -->
+<!-- ************************************************************************** -->
+<!-- Name:  -->
+<!-- Date: Jan 20, 2022 -->
+<!-- ************************************************************************** -->
+<!-- This code is based on Google's Visualization Gauge code. For more details, go to 
+     https://developers.google.com/chart/interactive/docs/gallery/gauge -->
+<!-- This HTML file  is used to display Google's Gauge charts based on the data 
+	 passed from the Python that reads from the sensor(s). -->
+<!-- if you wish to debug your code online, see an example:
+	 https://jsfiddle.net/api/post/library/pure/ -->
+   <html>
+    <head>
+      <!-- import the necessary JavsScript files -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+   <script type="text/javascript">
+     // load the guage package from Google Charts
+    google.charts.load('current', {'packages':['gauge']});
+    google.charts.setOnLoadCallback(drawChart);
+  
+    
+    // begin th function that will be used to draw the chart 
+    // variable {{ temp }} is retrieved from the JSON data sent via Python script through the template
+    function drawChart() {
+  
+      // TEMPERATURE GAUGE START
+  
+        var tempData = google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['Temperature', {{ temp }}]
+        ]);
+       
+       // define the display options for the temperature gauage
+       var tempOptions = 
+       {
+        width: 300, height: 300,
+        redFrom: 37, redTo: 45,
+        greenFrom: 36, greenTo: 37,
+        yellowFrom: 25, yellowTo: 36,
+        minorTicks: 5,
+        min: 0, max: 45
+       };
+       
+        // define the display options for the motion detector
+        var distOptions = 
+        {
+          width: 300, height: 300,
+          redFrom: 25, redTo: 50,
+          greenFrom: 0, greenTo: 15,
+          yellowFrom: 15, yellowTo: 25,
+          minorTicks: 5,
+          min: 0, max: 192			   
+        };
+      var motionData = google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['Motion', {{ dist }}]
+        ]);
+    
+      // define the display options for the motion detector
+      var distOptions = 
+      {
+        width: 300, height: 300,
+        redFrom: 25, redTo: 50,
+        greenFrom: 0, greenTo: 15,
+        yellowFrom: 15, yellowTo: 25,
+        minorTicks: 5,
+        min: 0, max: 192			   
+      };
+       
+       // dynamically map or wire data to the chart enclosed in the div element called temp_div
+       var tempChart = new google.visualization.Gauge(document.getElementById('temp_div'));
+       tempChart.draw(tempData, tempOptions);
+       var motionChart = new google.visualization.Gauge(document.getElementById('motion_div'));
+       motionChart.draw(motionData, distOptions);
+       
+       // call this setInterval function to refresh the page (URL) using AJAX 
+       // note that we can use alert (...); for debugging in case the output is not shown 
+       // properly on the charts 
+       setInterval(function() {
+          var flow = $.ajax({url: '/getTemp', dataType: 'text', async: false}).responseText;
+          tempData.setValue(0, 1, flow);
+          tempChart.draw(tempData, tempOptions);
+        }, 2000);
+        
+        setInterval(function() {
+          var motion = $.ajax({url: '/getDist', dataType: 'text', async: false}).responseText;
+          motionData.setValue(0, 1, motion);
+          motionChart.draw(motionData, distOptions);
+        }, 2000);
+
+      // TEMPERATURE GAUGE END        
+    }
+    </script>
+  </head>
+  <body>
+     <!-- define the HTML element that needs binding -->
+    <table class="charts">
+      <tr>
+        <th rowspan="2"></th>
+      </tr>
+      <tr>
+        <td style="padding: 50px"><div id="temp_div"></div></td>
+        <td style="padding: 50px"><div id="motion_div"></div></td>
+      </tr>
+    </table>
+  </body>
+</html>
+      
