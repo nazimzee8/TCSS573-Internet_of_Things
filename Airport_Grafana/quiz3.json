@@ -1,0 +1,951 @@
+[
+    {
+        "id": "2a8513addd5629e7",
+        "type": "tab",
+        "label": "quiz3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "2c1af08f871aa645",
+        "type": "grove digital sensor",
+        "z": "2a8513addd5629e7",
+        "name": "Temperature",
+        "board": "9b2c386f6977d97a",
+        "sensor": "dht11",
+        "repeat": "5",
+        "pin": "4",
+        "x": 90,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "88a35653ff579e0e",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "extractDHT",
+        "func": "if (!(isNaN(msg.payload['temperature'])) ||\n    !(isNaN(msg.payload['humidity'])) ||\n    !isNaN(msg.payload['heatIndex'])) {\n        \n    msg.payload = {\n        temp: msg.payload['temperature'],\n        hum: msg.payload['humidity'],\n        heat: msg.payload['heatIndex']\n    };\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 60,
+        "wires": [
+            [
+                "9bf62044a260d7f0",
+                "70a156cd7f9563f6"
+            ]
+        ]
+    },
+    {
+        "id": "9bf62044a260d7f0",
+        "type": "influxdb out",
+        "z": "2a8513addd5629e7",
+        "influxdb": "e564f3c5f118a726",
+        "name": "smartHome",
+        "measurement": "UWTCampus",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 510,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "70a156cd7f9563f6",
+        "type": "debug",
+        "z": "2a8513addd5629e7",
+        "name": "payload",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload.temp",
+        "targetType": "msg",
+        "statusVal": "payload.temp",
+        "statusType": "auto",
+        "x": 510,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "941c4731f2f5613a",
+        "type": "http request",
+        "z": "2a8513addd5629e7",
+        "name": "findWeather",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.openweathermap.org/data/2.5/weather?lat={{lat}}&lon={{long}}&units=metric&appid=d21fbbda7892adeaa353aabbdb2d0a82",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1050,
+        "y": 340,
+        "wires": [
+            [
+                "075df1c7bce3de6c"
+            ]
+        ]
+    },
+    {
+        "id": "3b391c0521658128",
+        "type": "influxdb out",
+        "z": "2a8513addd5629e7",
+        "influxdb": "96b345ea489ebe50",
+        "name": "Traffic",
+        "measurement": "Traffic",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 2110,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "9d508252b38053ae",
+        "type": "http request",
+        "z": "2a8513addd5629e7",
+        "name": "detectAirports",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://aviation-reference-data.p.rapidapi.com/airports/search?lat={{lat}}&lon={{long}}&radius=50&rapidapi-key=9737f47a7emshdf12f0007bed459p1ebb4ejsnf2be70d6ad6d",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 480,
+        "y": 600,
+        "wires": [
+            [
+                "b8f386499e71142f"
+            ]
+        ]
+    },
+    {
+        "id": "13451a2fed088286",
+        "type": "http request",
+        "z": "2a8513addd5629e7",
+        "name": "detectOrigin",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://app.ipworld.info/api/iplocation?apikey=873dbe322aea47f89dcf729dcc8f60e8",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 470,
+        "y": 520,
+        "wires": [
+            [
+                "c2697c4adc517e59"
+            ]
+        ]
+    },
+    {
+        "id": "c2697c4adc517e59",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "extractOrigin",
+        "func": "if (!(isNaN(msg.payload['longitude'])) ||\n    !(isNaN(msg.payload['latitude']))) {\n    msg.long = msg.payload['longitude'];\n    msg.lat = msg.payload['latitude'];\n    msg.origin = \"\" + msg.lat + \",\" + msg.long + \"\";\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 560,
+        "wires": [
+            [
+                "9d508252b38053ae"
+            ]
+        ]
+    },
+    {
+        "id": "76b5e2387c5954c1",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "parseDest",
+        "func": "var lat = msg.lat;\nvar long = msg.long;\nmsg.topic = 'dest';\nmsg.dest = \"\" + lat + \",\" + long + \"\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 300,
+        "wires": [
+            [
+                "941c4731f2f5613a"
+            ]
+        ]
+    },
+    {
+        "id": "4a8917b68a52ae7c",
+        "type": "loop",
+        "z": "2a8513addd5629e7",
+        "name": "iterateAirports",
+        "kind": "enum",
+        "count": "90",
+        "initial": "0",
+        "step": "1",
+        "condition": "",
+        "conditionType": "js",
+        "when": "before",
+        "enumeration": "payload",
+        "enumerationType": "msg",
+        "limit": "",
+        "loopPayload": "loop-val",
+        "finalPayload": "final-orig",
+        "x": 780,
+        "y": 540,
+        "wires": [
+            [],
+            [
+                "b8f386499e71142f",
+                "98b5ff9911413b5d"
+            ]
+        ]
+    },
+    {
+        "id": "b8f386499e71142f",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "iterateAirports",
+        "func": "return msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 600,
+        "wires": [
+            [
+                "4a8917b68a52ae7c"
+            ]
+        ]
+    },
+    {
+        "id": "98b5ff9911413b5d",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "coordinates",
+        "func": "msg.airport = msg.loop.value;\nmsg.long = msg.loop.value.longitude;\nmsg.lat = msg.loop.value.latitude;\nmsg.depart = msg.loop.value.iataCode;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 260,
+        "wires": [
+            [
+                "76b5e2387c5954c1"
+            ]
+        ]
+    },
+    {
+        "id": "075df1c7bce3de6c",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "parseWeather",
+        "func": "msg.topic = 'weather';\nmsg.desc = msg.payload[\"weather\"][\"0\"].main;\nmsg.name = msg.payload.name;\nvar payload = msg.payload;\nmsg.temperature = payload.main.temp;\nmsg.weather = msg.desc;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1060,
+        "y": 380,
+        "wires": [
+            [
+                "77e9edb6dc1f19ab"
+            ]
+        ]
+    },
+    {
+        "id": "2df9e181b80dc917",
+        "type": "ui_text_input",
+        "z": "2a8513addd5629e7",
+        "name": "destinationAirport",
+        "label": "Destination",
+        "tooltip": "",
+        "group": "a0c4ef332c351f37",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "mode": "text",
+        "delay": "0",
+        "topic": "topic",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "msg",
+        "x": 470,
+        "y": 240,
+        "wires": [
+            [
+                "a211426e0c97bcbd"
+            ]
+        ]
+    },
+    {
+        "id": "a211426e0c97bcbd",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "extractDestAirport",
+        "func": "msg.arrival = msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 280,
+        "wires": [
+            [
+                "c9cb7be8c0db802a"
+            ]
+        ]
+    },
+    {
+        "id": "77e9edb6dc1f19ab",
+        "type": "http request",
+        "z": "2a8513addd5629e7",
+        "name": "findFlightData",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://airlabs.co/api/v9/routes?dep_iata={{depart}}&api_key=a768893f-05bc-474f-a9bc-49e94007f38a",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1060,
+        "y": 420,
+        "wires": [
+            [
+                "5b1d37be7bf42078"
+            ]
+        ]
+    },
+    {
+        "id": "22ef9f560e69267f",
+        "type": "ui_text_input",
+        "z": "2a8513addd5629e7",
+        "name": "departureDate",
+        "label": "Departure Date",
+        "tooltip": "",
+        "group": "a0c4ef332c351f37",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "mode": "text",
+        "delay": "0",
+        "topic": "topic",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "msg",
+        "x": 460,
+        "y": 320,
+        "wires": [
+            [
+                "c14e671ffdd24201"
+            ]
+        ]
+    },
+    {
+        "id": "c14e671ffdd24201",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "extractDepartureDate",
+        "func": "msg.departDate = msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 360,
+        "wires": [
+            [
+                "c9cb7be8c0db802a"
+            ]
+        ]
+    },
+    {
+        "id": "e946dc2cb50ecb9b",
+        "type": "ui_text_input",
+        "z": "2a8513addd5629e7",
+        "name": "arrivalDate",
+        "label": "Arrival Date",
+        "tooltip": "",
+        "group": "a0c4ef332c351f37",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "mode": "text",
+        "delay": "0",
+        "topic": "topic",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "msg",
+        "x": 450,
+        "y": 400,
+        "wires": [
+            [
+                "5a0caba972ae6993"
+            ]
+        ]
+    },
+    {
+        "id": "5a0caba972ae6993",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "extractArrivalDate",
+        "func": "msg.arrivalDate = msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 440,
+        "wires": [
+            [
+                "c9cb7be8c0db802a"
+            ]
+        ]
+    },
+    {
+        "id": "c9cb7be8c0db802a",
+        "type": "join",
+        "z": "2a8513addd5629e7",
+        "name": "join",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "3",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 690,
+        "y": 440,
+        "wires": [
+            [
+                "13451a2fed088286"
+            ]
+        ]
+    },
+    {
+        "id": "bf7dbeeaf5694e3d",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/obtain arrival airport from user",
+        "info": "",
+        "x": 130,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "206c89c87fea9ee9",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/retrieve departure time from user",
+        "info": "",
+        "x": 130,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "6a123c22586d7546",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/obtain date when user reaches destination",
+        "info": "",
+        "x": 160,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "a77ea285a27325db",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/obtain user's IP",
+        "info": "",
+        "x": 200,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "d10137ef6e5c1a59",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/obtain all airports within a specified range",
+        "info": "",
+        "x": 180,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "19da413356591f55",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/iterate through the list of airports",
+        "info": "",
+        "x": 810,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "11b7b76b32ba45a4",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/retrieve location of departing airport",
+        "info": "",
+        "x": 1340,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "66ca0d5dbfc99434",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/retrieve weather at departing airport",
+        "info": "",
+        "x": 1340,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "e1caa5913658ecfd",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/retrieve flights of roundtrip for desired destination",
+        "info": "",
+        "x": 1380,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "daf877b456f0b6cc",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/distance from user's location and departing airport",
+        "info": "",
+        "x": 1510,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "93dfe7e3232afefc",
+        "type": "comment",
+        "z": "2a8513addd5629e7",
+        "name": "/adds all data values synchronously to the database",
+        "info": "",
+        "x": 1710,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "5b1d37be7bf42078",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "extractData",
+        "func": "var res = msg.payload.response;\nvar data = [];\nres.forEach(flight => {\n    if (flight['arr_iata'] == msg.arrival) {\n        data.push(flight);\n    }\n});\nmsg.data = data;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 460,
+        "wires": [
+            [
+                "7d8a201b2dbf9fdb"
+            ]
+        ]
+    },
+    {
+        "id": "5d8dcbf53dc37d92",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "parseData",
+        "func": "var payload = msg.loop.value;\nvar airline_iata = \"\";\nvar airline_icao = \"\";\nvar flight_iata = \"\";\nvar flight_icao = \"\";\nvar flight_num = \"\";\nvar duration = -1;\nvar dep_time = \"\";\nvar dep_time_utc = \"\";\nvar arr_time = \"\";\nvar arr_time_utc = \"\";\nvar days = \"\";\nif (payload.airline_iata != null && payload.airline_iata != undefined) airline_iata = payload.airline_iata;\nif (payload.airline_icao != null && payload.airline_icao != undefined) airline_icao = payload.airline_icao;\nif (payload.flight_iata != null && payload.flight_iata != undefined) flight_iata = payload.flight_iata;\nif (payload.flight_icao != null && payload.flight_icao != undefined) flight_icao = payload.flight_icao;\nif (payload.flight_number != null && payload.flight_number != undefined) flight_num = payload.flight_number;\nif (payload.duration != null && payload.duration != undefined) duration = payload.duration;\nif (payload.dep_time != null && payload.dep_time != undefined) dep_time = payload.dep_time;\nif (payload.dep_time_utc != null && payload.dep_time_utc != undefined) dep_time_utc = payload.dep_time_utc;\nif (payload.arr_time != null && payload.arr_time != undefined) arr_time = payload.arr_time;\nif (payload.arr_time_utc != null && payload.arr_time_utc != undefined) arr_time_utc = payload.arr_time_utc;\nif (payload.days != null && payload.days != undefined) {\n    payload.days.forEach(day => {\n        var str = \"\";\n        if (day == \"sat\" || day == \"sun\" || day == \"thu\") str = \"\" + day.charAt(0).toUpperCase() + day.charAt(1);\n        else str = \"\" + day.charAt(0).toUpperCase();\n        days += str;\n    });\n}\nmsg.payload = {\n    iata: msg.depart,\n    dest: msg.arrival,\n    airline_iata: airline_iata,\n    airline_icao: airline_icao,\n    flight_num: flight_num,\n    flight_iata: flight_iata,\n    flight_icao: flight_icao,\n    dep_time: dep_time,\n    dep_time_utc: dep_time_utc,\n    arr_time: arr_time,\n    arr_time_utc: arr_time_utc,\n    flight_duration: duration,\n    days: days\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1470,
+        "y": 700,
+        "wires": [
+            [
+                "a8028d976a26e109"
+            ]
+        ]
+    },
+    {
+        "id": "cbfb2f42e1699c50",
+        "type": "influxdb out",
+        "z": "2a8513addd5629e7",
+        "influxdb": "96b345ea489ebe50",
+        "name": "Data",
+        "measurement": "Data",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 1890,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "9477a96478d66b83",
+        "type": "loop",
+        "z": "2a8513addd5629e7",
+        "name": "iterateAvailableFlights",
+        "kind": "enum",
+        "count": "",
+        "initial": "1",
+        "step": "1",
+        "condition": "",
+        "conditionType": "js",
+        "when": "before",
+        "enumeration": "payload",
+        "enumerationType": "msg",
+        "limit": "",
+        "loopPayload": "loop-val",
+        "finalPayload": "final-last",
+        "x": 1060,
+        "y": 600,
+        "wires": [
+            [],
+            [
+                "7d8a201b2dbf9fdb",
+                "df0fd923cf0b8dc2"
+            ]
+        ]
+    },
+    {
+        "id": "7d8a201b2dbf9fdb",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "iterateData",
+        "func": "msg.payload = msg.data;\nvar decoy = {\n    airline_iata: null,\n    airline_icao: null,\n    flight_number: null,\n    flight_iata: null,\n    flight_icao: null,\n    cs_airline_iata: null,\n    cs_flight_iata: null,\n    cs_flight_number: null,\n    dep_iata: null,\n    dep_icao: null,\n    dep_terminals: null,\n    dep_time: null,\n    dep_time_utc: null,\n    arr_iata: null,\n    arr_icao: null,\n    arr_terminals: null,\n    arr_time: null,\n    arr_time_utc: null,\n    duration: null,\n    aircraft_icao: null,\n    counter: null,\n    updated: null\n};\nif (msg.payload.length == 0) msg.payload.push(decoy);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 520,
+        "wires": [
+            [
+                "9477a96478d66b83"
+            ]
+        ]
+    },
+    {
+        "id": "9bac34748f5cfcad",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "parseEntry",
+        "func": "var airport = msg.airport;\nvar icao = airport.icaoCode;\nvar payload = msg.payload;\nvar distance = -1;\nvar duration = -1;\nif (payload.distances != null || payload.distances != undefined) distance = payload.distances[0][0];\nif (payload.durations != null || payload.durations != undefined) duration = payload.durations[0][0];\nif (airport.icaoCode == null || airport.icaoCode == undefined) icao = \"\";\nmsg.payload = {\n    iata: airport.iataCode,\n    icao: icao,\n    arrival: msg.arrival,\n    name: airport.name,\n    country: airport.alpha2countryCode,\n    longitude: airport.longitude,\n    latitude: airport.latitude,\n    temperature: msg.temperature, \n    weather: msg.weather,\n    distance: distance,\n    duration: duration\n    };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1610,
+        "y": 580,
+        "wires": [
+            [
+                "5ffda2c270471cbc"
+            ]
+        ]
+    },
+    {
+        "id": "8bd5d362d5db9351",
+        "type": "http request",
+        "z": "2a8513addd5629e7",
+        "name": "extractDistance",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://trueway-matrix.p.rapidapi.com/CalculateDrivingMatrix?origins={{origin}}&destinations={{dest}}&start_time=now&rapidapi-key=9737f47a7emshdf12f0007bed459p1ebb4ejsnf2be70d6ad6d",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1400,
+        "y": 580,
+        "wires": [
+            [
+                "9bac34748f5cfcad",
+                "2a28d727592a186b"
+            ]
+        ]
+    },
+    {
+        "id": "166250ac883ad463",
+        "type": "switch",
+        "z": "2a8513addd5629e7",
+        "name": "",
+        "property": "route",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "2",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1230,
+        "y": 660,
+        "wires": [
+            [
+                "8bd5d362d5db9351"
+            ],
+            [
+                "5d8dcbf53dc37d92"
+            ]
+        ]
+    },
+    {
+        "id": "df0fd923cf0b8dc2",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "extractRoute",
+        "func": "var index = msg.loop.index;\nvar enumeration = msg.loop.enumeration;\nif (index == enumeration.length - 1) {\n    msg.route = 1;\n}\nelse msg.route = 2;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 660,
+        "wires": [
+            [
+                "166250ac883ad463"
+            ]
+        ]
+    },
+    {
+        "id": "2a28d727592a186b",
+        "type": "function",
+        "z": "2a8513addd5629e7",
+        "name": "parseData",
+        "func": "var payload = msg.data;\nvar airline_iata = \"\";\nvar airline_icao = \"\";\nvar flight_iata = \"\";\nvar flight_icao = \"\";\nvar flight_num = \"\";\nvar duration = -1;\nvar dep_time = \"\";\nvar dep_time_utc = \"\";\nvar arr_time = \"\";\nvar arr_time_utc = \"\";\nvar days = \"\";\nif (payload.airline_iata != null && payload.airline_iata != undefined) airline_iata = payload.airline_iata;\nif (payload.airline_icao != null && payload.airline_icao != undefined) airline_icao = payload.airline_icao;\nif (payload.flight_iata != null && payload.flight_iata != undefined) flight_iata = payload.flight_iata;\nif (payload.flight_icao != null && payload.flight_icao != undefined) flight_icao = payload.flight_icao;\nif (payload.flight_number != null && payload.flight_number != undefined) flight_num = payload.flight_number;\nif (payload.duration != null && payload.duration != undefined) duration = payload.duration;\nif (payload.dep_time != null && payload.dep_time != undefined) dep_time = payload.dep_time;\nif (payload.dep_time_utc != null && payload.dep_time_utc != undefined) dep_time_utc = payload.dep_time_utc;\nif (payload.arr_time != null && payload.arr_time != undefined) arr_time = payload.arr_time;\nif (payload.arr_time_utc != null && payload.arr_time_utc != undefined) arr_time_utc = payload.arr_time_utc;\nif (payload.days != null && payload.days != undefined) {\n    payload.days.forEach(day => {\n        var str = \"\";\n        if (day == \"sat\" || day == \"sun\" || day == \"thu\") str = \"\" + day.charAt(0).toUpperCase() + day.charAt(1);\n        else str = \"\" + day.charAt(0).toUpperCase();\n        days += str;\n    });\n}\nmsg.payload = {\n    iata: msg.depart,\n    dest: msg.arrival,\n    airline_iata: airline_iata,\n    airline_icao: airline_icao,\n    flight_num: flight_num,\n    flight_iata: flight_iata,\n    flight_icao: flight_icao,\n    dep_time: dep_time,\n    dep_time_utc: dep_time_utc,\n    arr_time: arr_time,\n    arr_time_utc: arr_time_utc,\n    flight_duration: duration,\n    days: days\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1610,
+        "y": 620,
+        "wires": [
+            [
+                "e0bc916d87f3b54a"
+            ]
+        ]
+    },
+    {
+        "id": "a3911049692fc781",
+        "type": "influxdb out",
+        "z": "2a8513addd5629e7",
+        "influxdb": "96b345ea489ebe50",
+        "name": "Data",
+        "measurement": "Data",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 2110,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "a8028d976a26e109",
+        "type": "delay",
+        "z": "2a8513addd5629e7",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1680,
+        "y": 700,
+        "wires": [
+            [
+                "cbfb2f42e1699c50"
+            ]
+        ]
+    },
+    {
+        "id": "e0bc916d87f3b54a",
+        "type": "delay",
+        "z": "2a8513addd5629e7",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1860,
+        "y": 620,
+        "wires": [
+            [
+                "a3911049692fc781"
+            ]
+        ]
+    },
+    {
+        "id": "5ffda2c270471cbc",
+        "type": "delay",
+        "z": "2a8513addd5629e7",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1860,
+        "y": 580,
+        "wires": [
+            [
+                "3b391c0521658128"
+            ]
+        ]
+    },
+    {
+        "id": "9b2c386f6977d97a",
+        "type": "board-config",
+        "board": "GrovePi"
+    },
+    {
+        "id": "e564f3c5f118a726",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "smarthome",
+        "name": "influxDB",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "96b345ea489ebe50",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "smartVehicle",
+        "name": "smartVehicle-ds",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "a0c4ef332c351f37",
+        "type": "ui_group",
+        "name": "Traffic",
+        "tab": "1e9f68599bb1b6fb",
+        "order": 4,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1e9f68599bb1b6fb",
+        "type": "ui_tab",
+        "name": "Airport",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
