@@ -1,0 +1,1279 @@
+[
+    {
+        "id": "1e9be8493f021b8a",
+        "type": "tab",
+        "label": "Assign4F",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "0f382accafc8fb5f",
+        "type": "ui_microphone",
+        "z": "1e9be8493f021b8a",
+        "name": "microphone",
+        "group": "05c972352d2ea62a",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "maxLength": 5,
+        "maxRecogLength": 5,
+        "timeslice": 0,
+        "press": "click",
+        "mode": "audio",
+        "interimResults": false,
+        "x": 110,
+        "y": 40,
+        "wires": [
+            [
+                "69986237e8b50c1c"
+            ]
+        ]
+    },
+    {
+        "id": "69986237e8b50c1c",
+        "type": "ffmpeg-conversion",
+        "z": "1e9be8493f021b8a",
+        "name": "convertBuffer",
+        "format": "wav",
+        "audiochannels": "mono",
+        "x": 110,
+        "y": 100,
+        "wires": [
+            [
+                "c8cd12736dfc5790"
+            ]
+        ]
+    },
+    {
+        "id": "c8cd12736dfc5790",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "prepareToken",
+        "func": "msg.voice = msg.payload;\nmsg.headers = {};\nmsg.headers['Ocp-Apim-Subscription-Key'] = 'd45a1170f8c04a3d9187b5619d0baff8';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 120,
+        "y": 160,
+        "wires": [
+            [
+                "3b9549ad5ff0a3bd"
+            ]
+        ]
+    },
+    {
+        "id": "3b9549ad5ff0a3bd",
+        "type": "http request",
+        "z": "1e9be8493f021b8a",
+        "name": "issueToken",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://westus.api.cognitive.microsoft.com/sts/v1.0/issuetoken",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 110,
+        "y": 220,
+        "wires": [
+            [
+                "84a00cc36210c13b"
+            ]
+        ]
+    },
+    {
+        "id": "84a00cc36210c13b",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "setHeaders",
+        "func": "msg.headers = {};\nmsg.headers['Authorization'] = 'Bearer ' + msg.payload;\nmsg.headers['Transfer-Encoding'] = 'chunked';\nmsg.headers['Content-Type'] = 'audio/wav; codesc=audio/pcm; samplerate=16000';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 110,
+        "y": 280,
+        "wires": [
+            [
+                "52c7dada57bb156e"
+            ]
+        ]
+    },
+    {
+        "id": "52c7dada57bb156e",
+        "type": "change",
+        "z": "1e9be8493f021b8a",
+        "name": "convertSpeechText",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "voice",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 130,
+        "y": 340,
+        "wires": [
+            [
+                "2284dab80cf167a2"
+            ]
+        ]
+    },
+    {
+        "id": "2284dab80cf167a2",
+        "type": "http request",
+        "z": "1e9be8493f021b8a",
+        "name": "executeRequest",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://westus.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US ",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 120,
+        "y": 400,
+        "wires": [
+            [
+                "f9a89fab4107ef5c"
+            ]
+        ]
+    },
+    {
+        "id": "f9a89fab4107ef5c",
+        "type": "json",
+        "z": "1e9be8493f021b8a",
+        "name": "convertJSON",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 130,
+        "y": 460,
+        "wires": [
+            [
+                "ceda76b83373371a",
+                "d8c71e03d38df406"
+            ]
+        ]
+    },
+    {
+        "id": "ceda76b83373371a",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "extractText",
+        "func": "var vmsg = msg.payload;\nmsg.vmsg = vmsg;\n\nvar extractedText = vmsg['DisplayText'].toString().toLowerCase().replace(/\\./g, '');\nmsg.extractedText = extractedText;\n//msg.payload = 1;\nvar res = extractedText.split(\" \");\n\nif (res.includes(\"alex,\")) {\n    if (res.includes(\"turn\") && res.includes(\"on\")) {  \n        msg.payload = 1; \n    }\n    else if (res.includes(\"turn\") && res.includes(\"off\")) {\n        msg.payload = 2;\n    }\n    if (res.includes(\"engine\")) {\n        if (res.includes(\"start\")){\n            /*msg = {\n                'topic': 'telemetry',\n                'payload': { carLight: 'BLUE' }\n            }*/\n            msg.payload = 3;\n        }\n        else if (res.includes(\"stop\")) {\n            /*msg = {\n                'topic': 'telemetry',\n                'payload': { carLight: 'GREEN' }\n            }*/\n            msg.payload = 4;\n        }\n    }\n    if (res.includes(\"drive\") && res.includes(\"car\")){\n        /*msg = {\n            'topic': 'telemetry',\n            'payload': {status: \"GREEN\"}\n        }*/\n        msg.payload = 5;\n    }\n    if (res.includes(\"stop\") && res.includes(\"car\")) {\n        /*msg = {\n            'topic': 'telemetry',\n            'payload': { status: \"YELLOW\" }\n        }*/\n        msg.payload = 6;\n    }\n}\nmsg.res = res;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 130,
+        "y": 520,
+        "wires": [
+            [
+                "61bd9bf3154dd9f2",
+                "95fc020f18afc07d",
+                "7c5825dac7394eed"
+            ]
+        ]
+    },
+    {
+        "id": "91b31e01a61625e5",
+        "type": "azureiotdevice",
+        "z": "1e9be8493f021b8a",
+        "deviceid": "kdgid5zqpx",
+        "pnpModelid": "",
+        "connectiontype": "dps",
+        "authenticationmethod": "sas",
+        "iothub": "tcss573-nazimz.azure-devices.net",
+        "isIotcentral": true,
+        "scopeid": "0ne0097BEF0",
+        "enrollmenttype": "device",
+        "saskey": "U84DQJP/ZTU02O1WfmHmDFa/ZuY5qZ2aD2+jjmruFiE=",
+        "certname": "",
+        "keyname": "",
+        "passphrase": "",
+        "protocol": "mqtt",
+        "retryInterval": 10,
+        "methods": [],
+        "DPSpayload": "",
+        "gatewayHostname": "",
+        "caname": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "x": 1190,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5b8452bb3d38a0bc",
+        "type": "grove digital output",
+        "z": "1e9be8493f021b8a",
+        "name": "Green",
+        "board": "9b2c386f6977d97a",
+        "pin": "5",
+        "x": 990,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "7869198df005d930",
+        "type": "grove digital output",
+        "z": "1e9be8493f021b8a",
+        "name": "Red",
+        "board": "9b2c386f6977d97a",
+        "pin": "6",
+        "x": 990,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "c3d0ec5f31d44cee",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "toggle green",
+        "func": "var status = 0;\nvar carLight = msg.payload.carLight;\nvar driveStatus = msg.payload.status;\nif (carLight == 'GREEN' || driveStatus == 'GREEN') {\n    status = 1;\n}\nmsg = {\n    'topic': 'telemetry',\n    'payload': status\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 790,
+        "y": 260,
+        "wires": [
+            [
+                "5b8452bb3d38a0bc",
+                "91b31e01a61625e5",
+                "7360be3d56f70a2c"
+            ]
+        ]
+    },
+    {
+        "id": "0fa8ddb11cd4ebbd",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "toggle red",
+        "func": "var status = 0;\nvar carLight = msg.payload.carLight;\nvar driveStatus = msg.payload.status;\nif (carLight == 'RED' || driveStatus == 'YELLOW') {\n    status = 1;\n}\nmsg = {\n    'topic': 'telemetry',\n    'payload': status\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 320,
+        "wires": [
+            [
+                "7869198df005d930",
+                "4208e533124b1766",
+                "91b31e01a61625e5",
+                "e9e7fa3072b23e3a"
+            ]
+        ]
+    },
+    {
+        "id": "9d29758667329d42",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "toggle blue",
+        "func": "var status = 0;\nvar carLight = msg.payload.carLight;\nif (carLight == 'BLUE') {\n    status = 1;\n}\nmsg = {\n    'topic': 'telemetry',\n    'payload': status\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 790,
+        "y": 380,
+        "wires": [
+            [
+                "24f0d588ab146e20",
+                "473f8e093bba5fbb",
+                "91b31e01a61625e5",
+                "e9e7fa3072b23e3a"
+            ]
+        ]
+    },
+    {
+        "id": "24f0d588ab146e20",
+        "type": "grove digital output",
+        "z": "1e9be8493f021b8a",
+        "name": "Blue",
+        "board": "9b2c386f6977d97a",
+        "pin": "3",
+        "x": 990,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "4208e533124b1766",
+        "type": "delay",
+        "z": "1e9be8493f021b8a",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1000,
+        "y": 320,
+        "wires": [
+            [
+                "75a23d2ffe76fc79"
+            ]
+        ]
+    },
+    {
+        "id": "75a23d2ffe76fc79",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "braking",
+        "func": "msg = {\n    'topic': 'telemetry',\n    'payload': {'status': \"RED\"}\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1160,
+        "y": 320,
+        "wires": [
+            [
+                "91b31e01a61625e5",
+                "09948ea4575339d3"
+            ]
+        ]
+    },
+    {
+        "id": "b29bcd8b8b8a0196",
+        "type": "switch",
+        "z": "1e9be8493f021b8a",
+        "name": "",
+        "property": "route",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "2",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "3",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "4",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "5",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "6",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 7,
+        "x": 550,
+        "y": 300,
+        "wires": [
+            [
+                "c3d0ec5f31d44cee"
+            ],
+            [
+                "0fa8ddb11cd4ebbd"
+            ],
+            [
+                "9d29758667329d42"
+            ],
+            [
+                "c3d0ec5f31d44cee"
+            ],
+            [
+                "c3d0ec5f31d44cee"
+            ],
+            [
+                "c3d0ec5f31d44cee"
+            ],
+            [
+                "0fa8ddb11cd4ebbd",
+                "1163c52157e9ade9"
+            ]
+        ]
+    },
+    {
+        "id": "61bd9bf3154dd9f2",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "evaluateStatus",
+        "func": "var route = msg.payload;\nvar payload;\nif (route == 1) {\n    payload = {'carLight': \"GREEN\"}\n}\nif (route == 2) {\n    payload = {'carLight': \"RED\"}\n}\nif (route == 3) {\n    payload = {'carLight': \"BLUE\"}\n}\nif (route == 4) {\n    payload = {'carLight': \"GREEN\"}\n}\nif (route == 5) {\n    payload = {'status': \"GREEN\"}\n}\nif (route == 6) {\n    payload = {'status': \"YELLOW\"}\n}\nmsg = {\n    'topic': 'telemetry',\n    'payload': payload,\n    'route': route\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 300,
+        "wires": [
+            [
+                "b29bcd8b8b8a0196",
+                "f82ea9cc1244ed0d",
+                "b55c5734315aef67"
+            ]
+        ]
+    },
+    {
+        "id": "95fc020f18afc07d",
+        "type": "debug",
+        "z": "1e9be8493f021b8a",
+        "name": "response",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "res",
+        "targetType": "msg",
+        "statusVal": "extractedText",
+        "statusType": "auto",
+        "x": 130,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "1163c52157e9ade9",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "toggle buzzer",
+        "func": "msg.payload = 50;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 500,
+        "wires": [
+            [
+                "91efc23c59349cd2"
+            ]
+        ]
+    },
+    {
+        "id": "91efc23c59349cd2",
+        "type": "grove analog output",
+        "z": "1e9be8493f021b8a",
+        "name": "Buzzer",
+        "board": "9b2c386f6977d97a",
+        "pin": "6",
+        "x": 1000,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "09948ea4575339d3",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "toggle buzzer",
+        "func": "msg.payload = 50;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 460,
+        "wires": [
+            [
+                "91efc23c59349cd2"
+            ]
+        ]
+    },
+    {
+        "id": "601aabd5df071a54",
+        "type": "grove analog sensor",
+        "z": "1e9be8493f021b8a",
+        "name": "Light",
+        "pin": "0",
+        "sensor": "light",
+        "repeat": "2",
+        "board": "9b2c386f6977d97a",
+        "x": 650,
+        "y": 660,
+        "wires": [
+            [
+                "07afe5566286fc1c"
+            ]
+        ]
+    },
+    {
+        "id": "04d1997443c2a73f",
+        "type": "grove analog sensor",
+        "z": "1e9be8493f021b8a",
+        "name": "Sound",
+        "pin": "1",
+        "sensor": "sound",
+        "repeat": "2",
+        "board": "9b2c386f6977d97a",
+        "x": 650,
+        "y": 720,
+        "wires": [
+            [
+                "5d72efcf8a78788c"
+            ]
+        ]
+    },
+    {
+        "id": "de97d5c3c8bfaca0",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "surrounding lights",
+        "func": "var pulseWidth = msg.payload;\nvar value;\nif (pulseWidth > 100) {\n    value = \"CAUTION\";\n}\nelse value = \"SAFE\";\nmsg = {\n    'topic': 'telemetry',\n    'payload': [{'driverAlert': value}, {'light': pulseWidth}]\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 970,
+        "y": 660,
+        "wires": [
+            [
+                "f9dab0ab321aad77",
+                "91b31e01a61625e5"
+            ]
+        ]
+    },
+    {
+        "id": "8a27dd13c01eef02",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "surrounding sounds",
+        "func": "var pulseWidth = msg.payload;\nvar value;\nif (pulseWidth > 256) {\n    value = \"CAUTION\";\n}\nelse value = \"SAFE\";\nmsg = {\n    'topic': 'telemetry',\n    'payload': [{'driverAlert': value}, {'sound': pulseWidth}]\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 970,
+        "y": 720,
+        "wires": [
+            [
+                "c661943161632010",
+                "91b31e01a61625e5"
+            ]
+        ]
+    },
+    {
+        "id": "f9dab0ab321aad77",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "trigger light buzzer",
+        "func": "var analog;\nvar driverAlert = msg.payload[0];\nif (driverAlert == 'CAUTION') {\n    analog = 50;\n}\nelse analog = 0;\nmsg = {\n    'topic': 'telemetry',\n    'payload': analog\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1270,
+        "y": 660,
+        "wires": [
+            [
+                "6d02a5a3efe922df"
+            ]
+        ]
+    },
+    {
+        "id": "c661943161632010",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "trigger sound buzzer",
+        "func": "var analog;\nvar driverAlert = msg.payload[0];\nif (driverAlert == 'CAUTION') {\n    analog = 50;\n}\nelse analog = 0;\nmsg = {\n    'topic': 'telemetry',\n    'payload': analog\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1280,
+        "y": 720,
+        "wires": [
+            [
+                "6b97a47f8540b677"
+            ]
+        ]
+    },
+    {
+        "id": "7631b2638f406da5",
+        "type": "random",
+        "z": "1e9be8493f021b8a",
+        "name": "",
+        "low": "0",
+        "high": "512",
+        "inte": "true",
+        "property": "payload",
+        "x": 840,
+        "y": 800,
+        "wires": [
+            [
+                "8a27dd13c01eef02"
+            ]
+        ]
+    },
+    {
+        "id": "249b06dd515a083f",
+        "type": "inject",
+        "z": "1e9be8493f021b8a",
+        "name": "Sound",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 660,
+        "y": 800,
+        "wires": [
+            [
+                "7631b2638f406da5"
+            ]
+        ]
+    },
+    {
+        "id": "07afe5566286fc1c",
+        "type": "delay",
+        "z": "1e9be8493f021b8a",
+        "name": "Set Rate",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 780,
+        "y": 660,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5d72efcf8a78788c",
+        "type": "delay",
+        "z": "1e9be8493f021b8a",
+        "name": "Set Rate",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 780,
+        "y": 720,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3a2979992f821178",
+        "type": "inject",
+        "z": "1e9be8493f021b8a",
+        "name": "Light",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 650,
+        "y": 600,
+        "wires": [
+            [
+                "23ed46a168af2a98"
+            ]
+        ]
+    },
+    {
+        "id": "23ed46a168af2a98",
+        "type": "random",
+        "z": "1e9be8493f021b8a",
+        "name": "",
+        "low": "0",
+        "high": "256",
+        "inte": "true",
+        "property": "payload",
+        "x": 800,
+        "y": 600,
+        "wires": [
+            [
+                "de97d5c3c8bfaca0"
+            ]
+        ]
+    },
+    {
+        "id": "6d02a5a3efe922df",
+        "type": "grove analog output",
+        "z": "1e9be8493f021b8a",
+        "name": "Buzzer",
+        "board": "9b2c386f6977d97a",
+        "pin": "6",
+        "x": 1480,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "6b97a47f8540b677",
+        "type": "grove analog output",
+        "z": "1e9be8493f021b8a",
+        "name": "Buzzer",
+        "board": "9b2c386f6977d97a",
+        "pin": "6",
+        "x": 1480,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "d8c71e03d38df406",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "extractInquiry",
+        "func": "var vmsg = msg.payload;\nmsg.vmsg = vmsg;\n\nvar extractedText = vmsg['DisplayText'].toString().toLowerCase().replace(/\\./g, '');\nmsg.extractedText = extractedText;\n\nvar res = extractedText.split(\" \");\n\nif (res.includes(\"alex\")) {\n    if (res.includes(\"what\")) {   \n        if (res.includes(\"weather\")) {\n            msg.payload = 1;\n        }\n        if (res.includes(\"location\")) {\n            msg.payload = 2;\n        }\n        if (res.includes(\"time\")) {\n            msg.payload = 3;\n        }\n        if (res.includes(\"light\") || res.includes(\"brightness\")) {\n            msg.payload = 4;\n        }\n        if (res.includes(\"what\") && res.includes(\"status\")) {\n            msg.payload = 5;\n        }\n    }\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 240,
+        "wires": [
+            [
+                "3598782e66750563"
+            ]
+        ]
+    },
+    {
+        "id": "842a7fa425f99ff5",
+        "type": "grove digital sensor",
+        "z": "1e9be8493f021b8a",
+        "name": "Temperature",
+        "board": "9b2c386f6977d97a",
+        "sensor": "dht11",
+        "repeat": "2",
+        "pin": "8",
+        "x": 650,
+        "y": 560,
+        "wires": [
+            [
+                "22a9fa2b2de14b7b"
+            ]
+        ]
+    },
+    {
+        "id": "3aef3b930daba4c9",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "extract temperature",
+        "func": "msg.topic = 'telemetry';\nmsg.payload = msg.payload.temperature;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 970,
+        "y": 560,
+        "wires": [
+            [
+                "91b31e01a61625e5"
+            ]
+        ]
+    },
+    {
+        "id": "22a9fa2b2de14b7b",
+        "type": "delay",
+        "z": "1e9be8493f021b8a",
+        "name": "Set Rate",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 800,
+        "y": 560,
+        "wires": [
+            [
+                "3aef3b930daba4c9"
+            ]
+        ]
+    },
+    {
+        "id": "3a0ad19b900a3834",
+        "type": "http request",
+        "z": "1e9be8493f021b8a",
+        "name": "findWeather",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://api.openweathermap.org/data/2.5/weather?q={{payload}}&units=metric&appid=d21fbbda7892adeaa353aabbdb2d0a82",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1010,
+        "y": 20,
+        "wires": [
+            [
+                "a441a618e9cbbcd3",
+                "3359acdbab5860b1"
+            ]
+        ]
+    },
+    {
+        "id": "a441a618e9cbbcd3",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "parseWeather",
+        "func": "msg.topic = 'telemetry';\nmsg.desc = msg.payload[\"weather\"][\"0\"].main;\nmsg.name = msg.payload.name;\nmsg.payload = { 'weather': msg.payload.main.temp };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1200,
+        "y": 20,
+        "wires": [
+            [
+                "91b31e01a61625e5"
+            ]
+        ]
+    },
+    {
+        "id": "bc33266c36eb65cb",
+        "type": "http request",
+        "z": "1e9be8493f021b8a",
+        "name": "detectCity",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://ip-api.com/json",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 720,
+        "y": 20,
+        "wires": [
+            [
+                "9e5e8eb0547783c1"
+            ]
+        ]
+    },
+    {
+        "id": "9e5e8eb0547783c1",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "parseCity",
+        "func": "msg.payload = msg.payload.city;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 20,
+        "wires": [
+            [
+                "3a0ad19b900a3834"
+            ]
+        ]
+    },
+    {
+        "id": "82ae69db60f84776",
+        "type": "http request",
+        "z": "1e9be8493f021b8a",
+        "name": "detectIP",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://app.ipworld.info/api/iplocation?apikey=873dbe322aea47f89dcf729dcc8f60e8",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 720,
+        "y": 60,
+        "wires": [
+            [
+                "3359acdbab5860b1"
+            ]
+        ]
+    },
+    {
+        "id": "3598782e66750563",
+        "type": "switch",
+        "z": "1e9be8493f021b8a",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "2",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "3",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "4",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "5",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 5,
+        "x": 550,
+        "y": 120,
+        "wires": [
+            [
+                "bc33266c36eb65cb"
+            ],
+            [
+                "82ae69db60f84776"
+            ],
+            [
+                "d1b523877d248c63"
+            ],
+            [
+                "990a53844bc0c106"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "3359acdbab5860b1",
+        "type": "json",
+        "z": "1e9be8493f021b8a",
+        "name": "convertJSON",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 1210,
+        "y": 80,
+        "wires": [
+            [
+                "d70889b9b9aec197"
+            ]
+        ]
+    },
+    {
+        "id": "fd705c68dfc7e5eb",
+        "type": "Text To Speech",
+        "z": "1e9be8493f021b8a",
+        "name": "",
+        "appId": "",
+        "userAgent": "Linux",
+        "voice": "Benjamin",
+        "outputFormat": "riff-16khz-16bit-mono-pcm",
+        "outputPayloadType": "stream",
+        "x": 1580,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d70889b9b9aec197",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "extractSpeech",
+        "func": "var vmsg = msg.payload;\nmsg.vmsg = vmsg;\n\nvar extractedText = vmsg['DisplayText'].toString().toLowerCase().replace(/\\./g, '');\nmsg.extractedText = extractedText;\nmsg.payload = extractedText;\n\nvar res = extractedText.split(\" \");\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1400,
+        "y": 80,
+        "wires": [
+            [
+                "fd705c68dfc7e5eb"
+            ]
+        ]
+    },
+    {
+        "id": "d1b523877d248c63",
+        "type": "http request",
+        "z": "1e9be8493f021b8a",
+        "name": "getTime",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://www.timeapi.io/api/Time/current/zone?timeZone=America/Los_Angeles",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 720,
+        "y": 100,
+        "wires": [
+            [
+                "3359acdbab5860b1"
+            ]
+        ]
+    },
+    {
+        "id": "990a53844bc0c106",
+        "type": "http request",
+        "z": "1e9be8493f021b8a",
+        "name": "getTime",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://www.timeapi.io/api/Time/current/zone?timeZone=America/Los_Angeles",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 720,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f82ea9cc1244ed0d",
+        "type": "debug",
+        "z": "1e9be8493f021b8a",
+        "name": "payload",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 390,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "7c5825dac7394eed",
+        "type": "debug",
+        "z": "1e9be8493f021b8a",
+        "name": "route",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "route",
+        "statusType": "auto",
+        "x": 380,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "473f8e093bba5fbb",
+        "type": "debug",
+        "z": "1e9be8493f021b8a",
+        "name": "route",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "route",
+        "statusType": "auto",
+        "x": 820,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "b55c5734315aef67",
+        "type": "debug",
+        "z": "1e9be8493f021b8a",
+        "name": "route",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "route",
+        "targetType": "msg",
+        "statusVal": "route",
+        "statusType": "auto",
+        "x": 440,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "e9e7fa3072b23e3a",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "turn off",
+        "func": "msg.payload = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 80,
+        "wires": [
+            [
+                "5b8452bb3d38a0bc"
+            ]
+        ]
+    },
+    {
+        "id": "7360be3d56f70a2c",
+        "type": "function",
+        "z": "1e9be8493f021b8a",
+        "name": "turn off",
+        "func": "msg.payload = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 120,
+        "wires": [
+            [
+                "7869198df005d930"
+            ]
+        ]
+    },
+    {
+        "id": "05c972352d2ea62a",
+        "type": "ui_group",
+        "name": "Demo",
+        "tab": "e796ba84a127c02b",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": true,
+        "className": ""
+    },
+    {
+        "id": "9b2c386f6977d97a",
+        "type": "board-config",
+        "board": "GrovePi"
+    },
+    {
+        "id": "e796ba84a127c02b",
+        "type": "ui_tab",
+        "name": "Audio",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
