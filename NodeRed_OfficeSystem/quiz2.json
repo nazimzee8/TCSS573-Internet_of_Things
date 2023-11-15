@@ -1,0 +1,1066 @@
+[
+    {
+        "id": "f6b75fc8666e398d",
+        "type": "tab",
+        "label": "Quiz2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "943ade7439447e64",
+        "type": "grove digital sensor",
+        "z": "f6b75fc8666e398d",
+        "name": "Temperature1",
+        "board": "9b2c386f6977d97a",
+        "sensor": "dht11",
+        "repeat": "2",
+        "pin": "8",
+        "x": 130,
+        "y": 140,
+        "wires": [
+            [
+                "3c062c19115f3ce8",
+                "841a31607dfa7d21",
+                "d3f72a016e45aeb6"
+            ]
+        ]
+    },
+    {
+        "id": "3c062c19115f3ce8",
+        "type": "debug",
+        "z": "f6b75fc8666e398d",
+        "name": "debug ",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 460,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "6b89d28bf37f4444",
+        "type": "ui_gauge",
+        "z": "f6b75fc8666e398d",
+        "name": "Temperature",
+        "group": "e0a5b7b4c4ae3c1c",
+        "order": 1,
+        "width": 4,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Office Room Temperature",
+        "label": "Celsius",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "45",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "15",
+        "seg2": "30",
+        "diff": false,
+        "className": "",
+        "x": 810,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "841a31607dfa7d21",
+        "type": "function",
+        "z": "f6b75fc8666e398d",
+        "name": "extract temperature",
+        "func": "return (\n    [\n        { payload:msg.payload.temperature }\n    ]\n)",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 200,
+        "wires": [
+            [
+                "6b89d28bf37f4444"
+            ]
+        ]
+    },
+    {
+        "id": "0327ad45b3008fe4",
+        "type": "ui_gauge",
+        "z": "f6b75fc8666e398d",
+        "name": "Humidity",
+        "group": "e0a5b7b4c4ae3c1c",
+        "order": 2,
+        "width": 4,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Office Room Humidity",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "40",
+        "seg2": "70",
+        "diff": false,
+        "className": "",
+        "x": 800,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "d3f72a016e45aeb6",
+        "type": "function",
+        "z": "f6b75fc8666e398d",
+        "name": "extract humidity",
+        "func": "return (\n    [\n        { payload: Math.round(msg.payload.humidity) }\n    ]\n)",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 260,
+        "wires": [
+            [
+                "0327ad45b3008fe4"
+            ]
+        ]
+    },
+    {
+        "id": "7e24deafe183c9df",
+        "type": "function",
+        "z": "f6b75fc8666e398d",
+        "name": "toggle off",
+        "func": "var value = msg.payload;\nif (value == 0) {\n    return (\n        [\n            { payload: 0 }\n        ]\n    )\n}\nelse {\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 120,
+        "y": 1560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "24d175b23b919462",
+        "type": "random",
+        "z": "f6b75fc8666e398d",
+        "name": "Temperature2",
+        "low": "0",
+        "high": "45",
+        "inte": "true",
+        "property": "payload",
+        "x": 300,
+        "y": 420,
+        "wires": [
+            [
+                "1c88c3307e1f2193",
+                "6052f3e08aefee92"
+            ]
+        ]
+    },
+    {
+        "id": "dc523ab7ad01cb2d",
+        "type": "random",
+        "z": "f6b75fc8666e398d",
+        "name": "Temperature3",
+        "low": "0",
+        "high": "45",
+        "inte": "true",
+        "property": "payload",
+        "x": 300,
+        "y": 720,
+        "wires": [
+            [
+                "5adb331acfbe11b6",
+                "1b2ed81e301ab6f6"
+            ]
+        ]
+    },
+    {
+        "id": "6052f3e08aefee92",
+        "type": "ui_gauge",
+        "z": "f6b75fc8666e398d",
+        "name": "Temperature",
+        "group": "043970236b2fda94",
+        "order": 1,
+        "width": 4,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Kitchen Temperature",
+        "label": "Celsius",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "45",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "15",
+        "seg2": "30",
+        "diff": false,
+        "className": "",
+        "x": 630,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "3f8bf9310c3a71c7",
+        "type": "ui_gauge",
+        "z": "f6b75fc8666e398d",
+        "name": "Humidity",
+        "group": "043970236b2fda94",
+        "order": 2,
+        "width": 4,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Kitchen Humidity",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "40",
+        "seg2": "70",
+        "diff": false,
+        "className": "",
+        "x": 620,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "1c88c3307e1f2193",
+        "type": "debug",
+        "z": "f6b75fc8666e398d",
+        "name": "debug ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 610,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "9103046da79be457",
+        "type": "random",
+        "z": "f6b75fc8666e398d",
+        "name": "Humidity2",
+        "low": "0",
+        "high": "100",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 540,
+        "wires": [
+            [
+                "3f8bf9310c3a71c7"
+            ]
+        ]
+    },
+    {
+        "id": "1b2ed81e301ab6f6",
+        "type": "ui_gauge",
+        "z": "f6b75fc8666e398d",
+        "name": "Temperature",
+        "group": "e3f2f2dbe2a8c498",
+        "order": 1,
+        "width": 4,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Living Room Temperature",
+        "label": "Celsius",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "45",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "15",
+        "seg2": "30",
+        "diff": false,
+        "className": "",
+        "x": 630,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "b84b2f75cee0c35b",
+        "type": "ui_gauge",
+        "z": "f6b75fc8666e398d",
+        "name": "Humidity",
+        "group": "e3f2f2dbe2a8c498",
+        "order": 2,
+        "width": 4,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Living Room Humidity",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "40",
+        "seg2": "70",
+        "diff": false,
+        "className": "",
+        "x": 620,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "5adb331acfbe11b6",
+        "type": "debug",
+        "z": "f6b75fc8666e398d",
+        "name": "debug ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 610,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "05a75b8963c4a40b",
+        "type": "random",
+        "z": "f6b75fc8666e398d",
+        "name": "Humidity3",
+        "low": "0",
+        "high": "100",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 840,
+        "wires": [
+            [
+                "b84b2f75cee0c35b"
+            ]
+        ]
+    },
+    {
+        "id": "0e6e0802ec02f9fb",
+        "type": "grove analog sensor",
+        "z": "f6b75fc8666e398d",
+        "name": "Lights",
+        "pin": "2",
+        "sensor": "light",
+        "repeat": "2",
+        "board": "9b2c386f6977d97a",
+        "x": 1050,
+        "y": 240,
+        "wires": [
+            [
+                "f9179fe439da02b1"
+            ]
+        ]
+    },
+    {
+        "id": "2a14af5843102929",
+        "type": "grove analog output",
+        "z": "f6b75fc8666e398d",
+        "name": "LCD1",
+        "board": "9b2c386f6977d97a",
+        "pin": "3",
+        "x": 2050,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "b49d8598cf57c797",
+        "type": "grove analog output",
+        "z": "f6b75fc8666e398d",
+        "name": "LCD2",
+        "board": "9b2c386f6977d97a",
+        "pin": "5",
+        "x": 2030,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "c12bb9f32d7d547b",
+        "type": "grove analog output",
+        "z": "f6b75fc8666e398d",
+        "name": "LCD3",
+        "board": "9b2c386f6977d97a",
+        "pin": "6",
+        "x": 2030,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "51175eb1e41c60b5",
+        "type": "ui_slider",
+        "z": "f6b75fc8666e398d",
+        "name": "slider1",
+        "label": "Brightness",
+        "tooltip": "",
+        "group": "e0a5b7b4c4ae3c1c",
+        "order": 7,
+        "width": 4,
+        "height": 1,
+        "passthru": true,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "str",
+        "min": 0,
+        "max": "255",
+        "step": 1,
+        "className": "",
+        "x": 1650,
+        "y": 240,
+        "wires": [
+            [
+                "2a14af5843102929",
+                "8763394df78e2659"
+            ]
+        ]
+    },
+    {
+        "id": "61dde4ad6209f2f2",
+        "type": "ui_slider",
+        "z": "f6b75fc8666e398d",
+        "name": "slider2",
+        "label": "Brightness",
+        "tooltip": "",
+        "group": "043970236b2fda94",
+        "order": 6,
+        "width": 4,
+        "height": 1,
+        "passthru": true,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "str",
+        "min": 0,
+        "max": "255",
+        "step": 1,
+        "className": "",
+        "x": 1650,
+        "y": 460,
+        "wires": [
+            [
+                "b49d8598cf57c797",
+                "a0f4961372562bc6"
+            ]
+        ]
+    },
+    {
+        "id": "a286c6da70b875a5",
+        "type": "ui_slider",
+        "z": "f6b75fc8666e398d",
+        "name": "slider3",
+        "label": "Brightness",
+        "tooltip": "",
+        "group": "e3f2f2dbe2a8c498",
+        "order": 6,
+        "width": 4,
+        "height": 1,
+        "passthru": true,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "str",
+        "min": 0,
+        "max": "255",
+        "step": 1,
+        "className": "",
+        "x": 1650,
+        "y": 680,
+        "wires": [
+            [
+                "c12bb9f32d7d547b",
+                "c8e58ae822340244"
+            ]
+        ]
+    },
+    {
+        "id": "235ee0a09b8a25ac",
+        "type": "ui_text",
+        "z": "f6b75fc8666e398d",
+        "group": "e0a5b7b4c4ae3c1c",
+        "order": 6,
+        "width": 4,
+        "height": 1,
+        "name": "Status",
+        "label": "STATUS",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 2050,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "8763394df78e2659",
+        "type": "function",
+        "z": "f6b75fc8666e398d",
+        "name": "extract status",
+        "func": "var value = msg.payload;\nif (value > 0) {\n    return (\n        [\n            { payload: \"ON\" }\n        ]\n    )\n}\nelse {\n    return (\n        [\n            { payload: \"OFF\" }\n        ]\n    )\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1810,
+        "y": 280,
+        "wires": [
+            [
+                "235ee0a09b8a25ac"
+            ]
+        ]
+    },
+    {
+        "id": "5e664a0bf0f4c4d4",
+        "type": "ui_switch",
+        "z": "f6b75fc8666e398d",
+        "name": "lights1",
+        "label": "Lights",
+        "tooltip": "",
+        "group": "e0a5b7b4c4ae3c1c",
+        "order": 5,
+        "width": 4,
+        "height": 1,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 1650,
+        "y": 320,
+        "wires": [
+            [
+                "69c30e38c3b354bb",
+                "8763394df78e2659"
+            ]
+        ]
+    },
+    {
+        "id": "69c30e38c3b354bb",
+        "type": "grove digital output",
+        "z": "f6b75fc8666e398d",
+        "name": "LCD1.5",
+        "board": "9b2c386f6977d97a",
+        "pin": "3",
+        "x": 2060,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "c40c5e523f4fb59a",
+        "type": "ui_switch",
+        "z": "f6b75fc8666e398d",
+        "name": "lights2",
+        "label": "Lights",
+        "tooltip": "",
+        "group": "043970236b2fda94",
+        "order": 4,
+        "width": 4,
+        "height": 1,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 1650,
+        "y": 540,
+        "wires": [
+            [
+                "a40d234604fc11e9",
+                "a0f4961372562bc6"
+            ]
+        ]
+    },
+    {
+        "id": "a40d234604fc11e9",
+        "type": "grove digital output",
+        "z": "f6b75fc8666e398d",
+        "name": "LCD2.5",
+        "board": "9b2c386f6977d97a",
+        "pin": "5",
+        "x": 2040,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "fe410442b78deefc",
+        "type": "ui_text",
+        "z": "f6b75fc8666e398d",
+        "group": "043970236b2fda94",
+        "order": 5,
+        "width": 4,
+        "height": 1,
+        "name": "Status",
+        "label": "STATUS",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 2030,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "a0f4961372562bc6",
+        "type": "function",
+        "z": "f6b75fc8666e398d",
+        "name": "extract status",
+        "func": "var value = msg.payload;\nif (value > 0) {\n    return (\n        [\n            { payload: \"ON\" }\n        ]\n    )\n}\nelse {\n    return (\n        [\n            { payload: \"OFF\" }\n        ]\n    )\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1810,
+        "y": 500,
+        "wires": [
+            [
+                "fe410442b78deefc"
+            ]
+        ]
+    },
+    {
+        "id": "3db540050215be15",
+        "type": "grove digital output",
+        "z": "f6b75fc8666e398d",
+        "name": "LCD3.5",
+        "board": "9b2c386f6977d97a",
+        "pin": "6",
+        "x": 2040,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "71c235cbc0c9735b",
+        "type": "ui_switch",
+        "z": "f6b75fc8666e398d",
+        "name": "lights3",
+        "label": "Lights",
+        "tooltip": "",
+        "group": "e3f2f2dbe2a8c498",
+        "order": 4,
+        "width": 4,
+        "height": 1,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 1650,
+        "y": 760,
+        "wires": [
+            [
+                "3db540050215be15",
+                "c8e58ae822340244"
+            ]
+        ]
+    },
+    {
+        "id": "5b751eabade16559",
+        "type": "ui_text",
+        "z": "f6b75fc8666e398d",
+        "group": "e3f2f2dbe2a8c498",
+        "order": 5,
+        "width": 4,
+        "height": 1,
+        "name": "Status",
+        "label": "STATUS",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 2030,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "c8e58ae822340244",
+        "type": "function",
+        "z": "f6b75fc8666e398d",
+        "name": "extract status",
+        "func": "var value = msg.payload;\nif (value > 0) {\n    return (\n        [\n            { payload: \"ON\" }\n        ]\n    )\n}\nelse {\n    return (\n        [\n            { payload: \"OFF\" }\n        ]\n    )\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1810,
+        "y": 720,
+        "wires": [
+            [
+                "5b751eabade16559"
+            ]
+        ]
+    },
+    {
+        "id": "47807f5f56b04ddc",
+        "type": "ui_gauge",
+        "z": "f6b75fc8666e398d",
+        "name": "rotary",
+        "group": "e0a5b7b4c4ae3c1c",
+        "order": 4,
+        "width": 4,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Rotary Angle Brightness",
+        "label": "PWM",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "255",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "128",
+        "seg2": "192",
+        "diff": false,
+        "className": "",
+        "x": 1450,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "47d30db796a1be8d",
+        "type": "ui_text",
+        "z": "f6b75fc8666e398d",
+        "group": "e0a5b7b4c4ae3c1c",
+        "order": 3,
+        "width": 4,
+        "height": 1,
+        "name": "Office Lights",
+        "label": "Office Lights",
+        "format": "",
+        "layout": "row-spread",
+        "className": "",
+        "x": 1670,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "1139af91db01cd79",
+        "type": "ui_text",
+        "z": "f6b75fc8666e398d",
+        "group": "043970236b2fda94",
+        "order": 3,
+        "width": 4,
+        "height": 1,
+        "name": "Kitchen Lights",
+        "label": "Kitchen Lights",
+        "format": "",
+        "layout": "row-spread",
+        "className": "",
+        "x": 1680,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "11ecc15e712e6772",
+        "type": "ui_text",
+        "z": "f6b75fc8666e398d",
+        "group": "e3f2f2dbe2a8c498",
+        "order": 3,
+        "width": 4,
+        "height": 1,
+        "name": "Living Room Lights",
+        "label": "Living Room Lights",
+        "format": "",
+        "layout": "row-spread",
+        "className": "",
+        "x": 1690,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "1e1afaa070df94cc",
+        "type": "inject",
+        "z": "f6b75fc8666e398d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "v": "",
+                "vt": "num"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 420,
+        "wires": [
+            [
+                "24d175b23b919462"
+            ]
+        ]
+    },
+    {
+        "id": "c8cbdb6ee66ab34f",
+        "type": "inject",
+        "z": "f6b75fc8666e398d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "v": "",
+                "vt": "num"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 720,
+        "wires": [
+            [
+                "dc523ab7ad01cb2d"
+            ]
+        ]
+    },
+    {
+        "id": "7ab15b67d613c434",
+        "type": "inject",
+        "z": "f6b75fc8666e398d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "v": "",
+                "vt": "num"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 540,
+        "wires": [
+            [
+                "9103046da79be457"
+            ]
+        ]
+    },
+    {
+        "id": "18c352ed696a20a3",
+        "type": "inject",
+        "z": "f6b75fc8666e398d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "v": "",
+                "vt": "num"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 840,
+        "wires": [
+            [
+                "05a75b8963c4a40b"
+            ]
+        ]
+    },
+    {
+        "id": "8e2a61cd8fb30c6f",
+        "type": "debug",
+        "z": "f6b75fc8666e398d",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1440,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "f9179fe439da02b1",
+        "type": "function",
+        "z": "f6b75fc8666e398d",
+        "name": "extract pulsewidth",
+        "func": "return (\n    [\n        { payload:msg.payload / 4}\n    ]\n)",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1250,
+        "y": 280,
+        "wires": [
+            [
+                "8e2a61cd8fb30c6f",
+                "47807f5f56b04ddc",
+                "2a14af5843102929"
+            ]
+        ]
+    },
+    {
+        "id": "7b132b4df28ced61",
+        "type": "ui_spacer",
+        "z": "f6b75fc8666e398d",
+        "name": "spacer",
+        "group": "dda217b3f0e0d0ea",
+        "order": 2,
+        "width": 6,
+        "height": 1
+    },
+    {
+        "id": "fddc34ea404f925c",
+        "type": "ui_spacer",
+        "z": "f6b75fc8666e398d",
+        "name": "spacer",
+        "group": "dda217b3f0e0d0ea",
+        "order": 4,
+        "width": 6,
+        "height": 1
+    },
+    {
+        "id": "ed46f0982054b42b",
+        "type": "ui_spacer",
+        "z": "f6b75fc8666e398d",
+        "name": "spacer",
+        "group": "dda217b3f0e0d0ea",
+        "order": 8,
+        "width": 6,
+        "height": 1
+    },
+    {
+        "id": "9b2c386f6977d97a",
+        "type": "board-config",
+        "board": "GrovePi"
+    },
+    {
+        "id": "e0a5b7b4c4ae3c1c",
+        "type": "ui_group",
+        "name": "Office",
+        "tab": "1e9f68599bb1b6fb",
+        "order": 1,
+        "disp": false,
+        "width": "16",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "043970236b2fda94",
+        "type": "ui_group",
+        "name": "Kitchen",
+        "tab": "1e9f68599bb1b6fb",
+        "order": 2,
+        "disp": false,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "e3f2f2dbe2a8c498",
+        "type": "ui_group",
+        "name": "Living Room",
+        "tab": "1e9f68599bb1b6fb",
+        "order": 3,
+        "disp": false,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1e9f68599bb1b6fb",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
