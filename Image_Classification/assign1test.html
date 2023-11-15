@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSSample</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+    $(function() {
+        var params = {
+            // Request parameters
+            //"iterationId": " c5eb6404-6039-43e5-a338-1cffe02ea730",
+            //"store": "True",
+        };
+      
+        $.ajax({
+            url:"https://assign1main-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/3b40ec78-2861-4ee4-9d53-83fe5a942eac/classify/iterations/assign1_Iteration1/url",
+            beforeSend: function(xhrObj){
+                // Request headers
+                xhrObj.setRequestHeader("Content-Type", "application/json");
+                xhrObj.setRequestHeader("Prediction-Key","776c53f8431f47c68af2a959f46eb038");
+            },
+            type: "POST",
+            // Request body
+            data: "{\"url\":\"https://i.natgeofe.com/n/6e6d2eea-06d3-4ac4-94ca-2aba6f7f8757/mountain-pine-trees.jpg\"}",
+            //data: "{body}",
+        })
+        .done(function(data) {
+            alert("success");
+        })
+        .fail(function() {
+            alert("error");
+        });
+    });
+</script>
+</body>
+</html>

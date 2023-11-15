@@ -1,0 +1,181 @@
+<!-- ****************************************** -->
+<!-- TCSS 573: Azure Computer Vison API Example -->
+<!-- Winter 2023   | IoT Course Example | WK 1  -->
+<!-- based on sample code provided by Microsoft -->
+<!-- Code allows file upload instead of URL     -->
+<!-- ****************************************** -->
+<!-- ENSURE TO CHANGE YOUR API KEY              -->
+<!-- ****************************************** -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Azure Computer Vision API Example</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <!-- using the Materia style sheet. Go to https://bootswatch.com/ and click on Themes and select a theme if you wish to change this current theme! -->
+    <link rel="stylesheet" href="https://bootswatch.com/5/materia/bootstrap.css">
+</head>
+
+<!-- onload calls a function that initializes some HTML elements (hide element from being displayed) -->
+<body onload="initElements()">
+
+    <!-- this form allows users to select a file to be uploaded to Azure -->
+    <form>
+        <h4 class="card-title">Select an image</h4>
+        <input type="file" class="btn btn-primary"/>
+    </form>
+
+
+    <script type="text/javascript">
+        // Hide the following HTML elements when page (HTML body) loads in browser. 
+        function initElements() {
+            $ ("#tags_title").hide();
+            $ ("#outputResults").hide();
+            $ ("#imageInfo").hide();
+        }
+
+        // Callback from a <input type="file" onchange="analyzeImage(this)"> - see the <form>...</form> HTML code above
+        // This callback function is called when a file is selected
+        // the function is attached to the change event (e.g., when a file is uploaded), which triggers this function. 
+        // that is, when you select a file from your local computer, the selection is change
+        // which triggers this function
+        $('input[type=file]').change(function () {
+           $("#resultsInfo tr").remove();
+           $("#tag_info tr").remove();
+
+            var file = this.files[0];
+
+            // define the parameters or options
+            var params = {
+                "projecId": "3b40ec78-2861-4ee4-9d53-83fe5a942eac",
+            };
+
+            // identify the first file selected
+            
+            // for more details on the FileReader: 
+            // https://developer.mozilla.org/en-US/docs/Web/API/FileReader
+            // create a FileReader instance to read 
+            // the file from local computer or storage
+            var reader = new FileReader();
+
+            // the event handler onload will be executed when a file is loaded  
+            reader.onload = function () {
+                $.ajax({
+                    //url: "https://assign1main-prediction.cognitiveservices.azure.com/customvision/v3.3/Training/projects/{assign1main}/predictions/query?" + $.param(params),
+                    url: "https://assign1main-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/3b40ec78-2861-4ee4-9d53-83fe5a942eac/classify/iterations/assign1_Iteration1/image",
+                    beforeSend: function (xhrObj) {
+                        // Request headers
+                        // xhrObj.setRequestHeader("Content-Type","application/json");
+                        //xhrObj.open("PUT", "https://assign1main-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/3b40ec78-2861-4ee4-9d53-83fe5a942eac/classify/iterations/assign1_Iteration1/image", true);
+                        xhrObj.setRequestHeader("Content-Type", "application/json");
+                        xhrObj.setRequestHeader("Prediction-Key","776c53f8431f47c68af2a959f46eb038");
+                        //xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "4fc12c7869064a5386e665eed1aeee4a");
+
+                    },
+                    type: "POST",
+                    // Request body
+                    // reader.result returns the file's content
+                    //data: "{\"url\":\"https://assign1main-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/3b40ec78-2861-4ee4-9d53-83fe5a942eac/classify/iterations/assign1_Iteration1/image\"}",
+                    data: reader.result,
+                    processData: false,
+
+                })
+                    // when the ready state is complete or done
+                    .done(function (data) {
+                        //alert("success");
+
+                        // *************************************************************
+                        // -> begin parsing the JSON data
+                        // Use a JSON formatter online tool to parse the response 
+                        // from the text console of the analyze method
+                        // Data extraction below is based on the data structure
+                        // of the JSON response
+                        // *************************************************************
+
+                        // VisualFeatures element: results
+                        // Gets predictions score for tag value.
+                        var predictions = data["predictions"]
+                        var predictions_score = "";
+                        var predictions_tag = "";
+                        // error handling:
+                        // check to see if the categories element has children elements
+                        if (predictions === undefined) {
+                            predictions_score = "N/A";
+                            predictions_name = "N/A";                        
+                        } else {
+                            predictions_score = predictions.probability;
+                            predictions_name = predictions.tagName;
+                            // replace the underscore with a space
+                            predictions_name = predictions_name.replace("_", " ");    
+                            predictions_score = precitions.probability.toFixed(2);                        
+                        }
+
+                        // ******* get image details ********************************************
+                        // resoinse message element: metadata
+                        // get image details
+                        var image_height = data["metadata"].height;
+                        var image_width = data["metadata"].width;
+                        var image_format = data["metadata"].format;
+
+                        // show the hidden HTML elements now that we have information parsed
+                        // show the tags_title element
+                        $ ("#tags_title").show();
+                        $ ("#outputResults").show();
+
+                        // ******* display image ************************************************
+                        // display the chosen image on the HTML page
+                        // get the path of the image file
+                        var path = (window.URL || window.webkitURL).createObjectURL(file);
+                        // append that information to the source of the image tag
+                        $ ("#imgsrc").attr("src", path).height("300").width("300");
+                        $ ("#imageInfo").show();
+
+                        // ******* Begin binding local data to HTML elements********************
+                        // map the values of the data parsed from JSON response message 
+                        // to HTML elements within the HTML file dynamically. 
+                        $("#resultsInfo").find('tbody').append($('<tr>').append($('<td>').text("Category")).append($('<td>').text(category_name)));
+                        $("#resultsInfo").find('tbody').append($('<tr class="table-success">').append($('<td>').text("Confidence Score")).append($('<td>').text(category_score)));
+                        $("#resultsInfo").find('tbody').append($('<tr>').append($('<td>').text("Dominant Colors")).append($('<td>').text(dominantColors)));
+                        $("#resultsInfo").find('tbody').append($('<tr class="table-success">').append($('<td>').text("Tags")).append($('<td>').text(tags)));
+                        $("#resultsInfo").find('tbody').append($('<tr>').append($('<td>').text("Description")).append($('<td>').text(description_text)));
+                        $("#resultsInfo").find('tbody').append($('<tr class="table-success">').append($('<td>').text("Score")).append($('<td>').text(description_score)));
+                        $("#resultsInfo").find('tbody').append($('<tr>').append($('<td>').text("Objects")).append($('<td>').text(objects)));
+
+                    })
+                    .fail(function () {
+                        alert("error");
+                    });
+            }
+
+            // start reading the file content as an 
+            // array buffer representing the data of the image file
+            // works as application/octet-stream content-type
+            reader.readAsArrayBuffer(file);
+
+        });
+    </script>
+
+    <!-- Image Information Table -->
+    <div class="card border-primary mb-3" style="max-width: 21rem;" id="imageInfo">
+        <div class="card-header">Selected Image</div>
+        <div class="card-body">
+          <img id="imgsrc" >
+        </div>
+    </div>
+
+    <!-- Results Information Table -->
+    <h1 id="outputResults">Results</h1>
+    <table id="resultsInfo" class="table table-hover" style="width:400px">
+        <tbody>
+
+        </tbody>
+    </table>
+
+    <!-- Tags Table -->
+    <h1 id="tags_title">Tags</h1>
+    <table id="tag_info" class="table table-hover"  style="width:200px">
+        <tbody>
+
+        </tbody>
+    </table>
+</body>
+</html>
