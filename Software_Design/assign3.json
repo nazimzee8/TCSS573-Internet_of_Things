@@ -1,0 +1,586 @@
+[
+    {
+        "id": "5df792e392be95be",
+        "type": "tab",
+        "label": "Assign3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "dd35c812a373fba2",
+        "type": "inject",
+        "z": "5df792e392be95be",
+        "name": "Image URL",
+        "props": [
+            {
+                "p": "url",
+                "v": "https://www.rd.com/wp-content/uploads/2019/11/shutterstock_1475410895-760x506.jpg",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 140,
+        "wires": [
+            [
+                "888196c89ad7ca3d"
+            ]
+        ]
+    },
+    {
+        "id": "888196c89ad7ca3d",
+        "type": "function",
+        "z": "5df792e392be95be",
+        "name": "function",
+        "func": "msg.payload = msg.url;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 140,
+        "wires": [
+            [
+                "4213bcde47392ea7"
+            ]
+        ]
+    },
+    {
+        "id": "4213bcde47392ea7",
+        "type": "Computer Vision",
+        "z": "5df792e392be95be",
+        "operation": "description",
+        "name": "Image Description",
+        "x": 510,
+        "y": 140,
+        "wires": [
+            [
+                "19fa6bbe4d5fb655"
+            ]
+        ]
+    },
+    {
+        "id": "6984f7cb66474438",
+        "type": "debug",
+        "z": "5df792e392be95be",
+        "name": "msg.payload",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 1060,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "19fa6bbe4d5fb655",
+        "type": "function",
+        "z": "5df792e392be95be",
+        "name": "process desc",
+        "func": "msg = {\n    'topic': 'telemetry',\n    'payload': { 'ImageDesc': msg.payload, 'ImageURL': msg.url}\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 140,
+        "wires": [
+            [
+                "6984f7cb66474438",
+                "0fca03be8b6dcc7d"
+            ]
+        ]
+    },
+    {
+        "id": "0fca03be8b6dcc7d",
+        "type": "azureiotdevice",
+        "z": "5df792e392be95be",
+        "deviceid": "kdgid5zqpx",
+        "pnpModelid": "",
+        "connectiontype": "dps",
+        "authenticationmethod": "sas",
+        "iothub": "tcss573-nazimz.azure-devices.net",
+        "isIotcentral": true,
+        "scopeid": "0ne0097BEF0",
+        "enrollmenttype": "device",
+        "saskey": "U84DQJP/ZTU02O1WfmHmDFa/ZuY5qZ2aD2+jjmruFiE=",
+        "certname": "",
+        "keyname": "",
+        "passphrase": "",
+        "protocol": "mqtt",
+        "retryInterval": 10,
+        "methods": [],
+        "DPSpayload": "",
+        "gatewayHostname": "",
+        "caname": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "x": 1150,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "abfe551978bccf84",
+        "type": "grove digital sensor",
+        "z": "5df792e392be95be",
+        "name": "Temperature",
+        "board": "9b2c386f6977d97a",
+        "sensor": "dht11",
+        "repeat": "2",
+        "pin": "8",
+        "x": 90,
+        "y": 240,
+        "wires": [
+            [
+                "dde05fea902dffec"
+            ]
+        ]
+    },
+    {
+        "id": "70c0491a74afb39f",
+        "type": "function",
+        "z": "5df792e392be95be",
+        "name": "extract temperature",
+        "func": "msg.topic = 'telemetry';\nmsg.payload = msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 240,
+        "wires": [
+            [
+                "0fca03be8b6dcc7d",
+                "d9b9dfe8023814b4"
+            ]
+        ]
+    },
+    {
+        "id": "861477865dd934c0",
+        "type": "grove digital output",
+        "z": "5df792e392be95be",
+        "name": "Green",
+        "board": "9b2c386f6977d97a",
+        "pin": "5",
+        "x": 1090,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "21de13a895aebbc2",
+        "type": "grove digital output",
+        "z": "5df792e392be95be",
+        "name": "Red",
+        "board": "9b2c386f6977d97a",
+        "pin": "6",
+        "x": 1110,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "d9b9dfe8023814b4",
+        "type": "function",
+        "z": "5df792e392be95be",
+        "name": "extract lights",
+        "func": "var temperature = msg.payload;\nvar value;\nif (temperature >= 19) {\n    value = \"GREEN\";\n}\nelse value = \"RED\";\nmsg = {\n    'topic': 'telemetry',\n    'payload': { 'carLight': value }\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 340,
+        "wires": [
+            [
+                "c4d3749ab82c0cdf",
+                "57620f28b6477ec3",
+                "0fca03be8b6dcc7d"
+            ]
+        ]
+    },
+    {
+        "id": "c4d3749ab82c0cdf",
+        "type": "function",
+        "z": "5df792e392be95be",
+        "name": "toggle green",
+        "func": "var status = 0;\nvar carLight = msg.payload;\nif (carLight == {'carLight': \"GREEN\"}) {\n    status = 1;\n}\nmsg = {\n    'topic': 'telemetry',\n    'payload': status\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 340,
+        "wires": [
+            [
+                "861477865dd934c0"
+            ]
+        ]
+    },
+    {
+        "id": "57620f28b6477ec3",
+        "type": "function",
+        "z": "5df792e392be95be",
+        "name": "toggle red",
+        "func": "var status = 0;\nvar carLight = msg.payload;\nif (carLight == { 'carLight': \"RED\" }) {\n    status = 1;\n}\nmsg = {\n    'topic': 'telemetry',\n    'payload': status\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 420,
+        "wires": [
+            [
+                "21de13a895aebbc2"
+            ]
+        ]
+    },
+    {
+        "id": "16c19ce2859b40e8",
+        "type": "inject",
+        "z": "5df792e392be95be",
+        "name": "WARM",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "20",
+        "payloadType": "num",
+        "x": 110,
+        "y": 320,
+        "wires": [
+            [
+                "d9b9dfe8023814b4"
+            ]
+        ]
+    },
+    {
+        "id": "7c65b229ab7a74c6",
+        "type": "inject",
+        "z": "5df792e392be95be",
+        "name": "COLD",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "15",
+        "payloadType": "num",
+        "x": 110,
+        "y": 400,
+        "wires": [
+            [
+                "d9b9dfe8023814b4"
+            ]
+        ]
+    },
+    {
+        "id": "6af539d89fd9ae58",
+        "type": "grove analog sensor",
+        "z": "5df792e392be95be",
+        "name": "Light",
+        "pin": "0",
+        "sensor": "light",
+        "repeat": "2",
+        "board": "9b2c386f6977d97a",
+        "x": 90,
+        "y": 500,
+        "wires": [
+            [
+                "1d6122edf3ea6056"
+            ]
+        ]
+    },
+    {
+        "id": "c9edc310b96a6079",
+        "type": "grove analog sensor",
+        "z": "5df792e392be95be",
+        "name": "Sound",
+        "pin": "1",
+        "sensor": "sound",
+        "repeat": "2",
+        "board": "9b2c386f6977d97a",
+        "x": 90,
+        "y": 560,
+        "wires": [
+            [
+                "bf187a60e63d3873"
+            ]
+        ]
+    },
+    {
+        "id": "fbc2f9b79d16bd32",
+        "type": "grove analog output",
+        "z": "5df792e392be95be",
+        "name": "Buzzer",
+        "board": "9b2c386f6977d97a",
+        "pin": "3",
+        "x": 1080,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "a4aa3d54563d83d6",
+        "type": "function",
+        "z": "5df792e392be95be",
+        "name": "surrounding lights",
+        "func": "var pulseWidth = msg.payload;\nvar value;\nif (pulseWidth > 100) {\n    value = \"CAUTION\";\n}\nelse value = \"SAFE\";\nmsg = {\n    'topic': 'telemetry',\n    'payload': {'driverAlert': value}\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 500,
+        "wires": [
+            [
+                "0fca03be8b6dcc7d",
+                "cf7994031464f93b"
+            ]
+        ]
+    },
+    {
+        "id": "55d77ac68b103c91",
+        "type": "function",
+        "z": "5df792e392be95be",
+        "name": "surrounding sounds",
+        "func": "var pulseWidth = msg.payload;\nvar value;\nif (pulseWidth > 256) {\n    value = \"CAUTION\";\n}\nelse value = \"SAFE\";\nmsg = {\n    'topic': 'telemetry',\n    'payload': {'driverAlert': value}\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 560,
+        "wires": [
+            [
+                "b8da0ea6a44a364b",
+                "0fca03be8b6dcc7d"
+            ]
+        ]
+    },
+    {
+        "id": "cf7994031464f93b",
+        "type": "function",
+        "z": "5df792e392be95be",
+        "name": "trigger light buzzer",
+        "func": "var analog = 0;\nvar driverAlert = msg.payload;\nif (driverAlert == { 'driverAlert': \"CAUTION\" }) {\n    analog = 50;\n}\nelse analog = 0;\nmsg = {\n    'topic': 'telemetry',\n    'payload': analog\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 500,
+        "wires": [
+            [
+                "fbc2f9b79d16bd32",
+                "1b95ca3d16fe60d3"
+            ]
+        ]
+    },
+    {
+        "id": "b8da0ea6a44a364b",
+        "type": "function",
+        "z": "5df792e392be95be",
+        "name": "trigger sound buzzer",
+        "func": "var analog = 0;\nvar driverAlert = msg.payload;\nif (driverAlert == { 'driverAlert': \"CAUTION\" }) {\n    analog = 50;\n}\nelse analog = 0;\nmsg = {\n    'topic': 'telemetry',\n    'payload': analog\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 560,
+        "wires": [
+            [
+                "90abe5a2ec85f5da"
+            ]
+        ]
+    },
+    {
+        "id": "2c42b2443c592ca9",
+        "type": "random",
+        "z": "5df792e392be95be",
+        "name": "",
+        "low": "0",
+        "high": "512",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 640,
+        "wires": [
+            [
+                "55d77ac68b103c91"
+            ]
+        ]
+    },
+    {
+        "id": "755e9f0ad6ac6e11",
+        "type": "inject",
+        "z": "5df792e392be95be",
+        "name": "Sound",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 100,
+        "y": 640,
+        "wires": [
+            [
+                "2c42b2443c592ca9"
+            ]
+        ]
+    },
+    {
+        "id": "dde05fea902dffec",
+        "type": "delay",
+        "z": "5df792e392be95be",
+        "name": "Set Rate",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 240,
+        "y": 240,
+        "wires": [
+            [
+                "70c0491a74afb39f"
+            ]
+        ]
+    },
+    {
+        "id": "1d6122edf3ea6056",
+        "type": "delay",
+        "z": "5df792e392be95be",
+        "name": "Set Rate",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 220,
+        "y": 500,
+        "wires": [
+            [
+                "a4aa3d54563d83d6"
+            ]
+        ]
+    },
+    {
+        "id": "bf187a60e63d3873",
+        "type": "delay",
+        "z": "5df792e392be95be",
+        "name": "Set Rate",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 220,
+        "y": 560,
+        "wires": [
+            [
+                "55d77ac68b103c91"
+            ]
+        ]
+    },
+    {
+        "id": "90abe5a2ec85f5da",
+        "type": "grove analog output",
+        "z": "5df792e392be95be",
+        "name": "Buzzer",
+        "board": "9b2c386f6977d97a",
+        "pin": "3",
+        "x": 1080,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "1b95ca3d16fe60d3",
+        "type": "debug",
+        "z": "5df792e392be95be",
+        "name": "msg.payload",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 940,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "9b2c386f6977d97a",
+        "type": "board-config",
+        "board": "GrovePi"
+    }
+]
